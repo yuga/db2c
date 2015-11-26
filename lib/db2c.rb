@@ -1,6 +1,6 @@
 module Db2c
   DEFAULT_PROMPT = "db2c => "
-  VERSION = "1.0.0"
+  VERSION = "1.0.2"
   module CONSTANTS
     DTSELECT = "select char(strip(tabschema) || '.' || strip(tabname), 128) as table from syscat.tables"
     DTORDER  = "order by tabschema, tabname"
