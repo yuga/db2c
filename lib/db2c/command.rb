@@ -59,8 +59,7 @@ module Db2c
       end
 
       if @input =~ /^\\dc ([^. ]+)\.([^.+ ]+)/
-	@input = "select substr(t.tabschema, 1, 10) as tabschema, substr(t.tabname, 1, 20) as tabname,"
-        @input += " substr(t.constname, 1, 30) as constname, t.type as type, t.enforced as enforced,"
+	@input = "select substr(t.constname, 1, 30) as constname, t.type as type, t.enforced as enforced,"
 	@input += " substr(c.colname, 1, 40) as colname, c.colseq as colseq"
 	@input += " from SYSCAT.tabconst t"
 	@input += " inner join syscat.keycoluse c"
