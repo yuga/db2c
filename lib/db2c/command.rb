@@ -46,28 +46,37 @@ module Db2c
         return
       end
 
+      if @input =~ /^\\dd ([^. ]+)\.([^.+ ]+)/
+        @input = "select substr(colname, 1, 30), substr(typeschema, 1, 30), substr(typename, 1, 30), length, scale, substr(default, 1, 30)"
+        @input += " from syscat.columns"
+        @input += " where tabschema = '#{$1.upcase}'"
+        @input += " and tabname = '#{$2.upcase}'"
+        @input += " order by colno"
+        return
+      end
+
       if @input =~ /^\\di ([^. ]+)\.([^.+ ]+)/
-	@input = "select substr(i.indschema, 1, 10) as indschema, substr(i.indname, 1, 30) as indname,"
+        @input = "select substr(i.indschema, 1, 10) as indschema, substr(i.indname, 1, 30) as indname, i.uniquerule,"
         @input += " substr(c.colname, 1, 40) as colname, c.colseq as colseq, c.colorder as colorder"
-	@input += " from SYSCAT.indexes i"
-	@input += " inner join SYSCAT.indexcoluse c"
-	@input += " on i.indschema=c.indschema and i.indname=c.indname"
-	@input += " where tabschema = '#{$1.upcase}'"
-	@input += " and tabname = '#{$2.upcase}'"
-	@input += " order by i.indschema, i.indname, c.colseq"
-	return
+        @input += " from SYSCAT.indexes i"
+        @input += " inner join SYSCAT.indexcoluse c"
+        @input += " on i.indschema=c.indschema and i.indname=c.indname"
+        @input += " where tabschema = '#{$1.upcase}'"
+        @input += " and tabname = '#{$2.upcase}'"
+        @input += " order by i.indschema, i.indname, c.colseq"
+        return
       end
 
       if @input =~ /^\\dc ([^. ]+)\.([^.+ ]+)/
-	@input = "select substr(t.constname, 1, 30) as constname, t.type as type, t.enforced as enforced,"
-	@input += " substr(c.colname, 1, 40) as colname, c.colseq as colseq"
-	@input += " from SYSCAT.tabconst t"
-	@input += " inner join syscat.keycoluse c"
-	@input += " on t.constname=c.constname"
-	@input += " where t.tabschema = '#{$1.upcase}'"
-	@input += " and t.tabname = '#{$2.upcase}'"
-	@input += " order by t.constname, c.colseq"
-	return
+        @input = "select substr(t.constname, 1, 30) as constname, t.type as type, t.enforced as enforced,"
+        @input += " substr(c.colname, 1, 40) as colname, c.colseq as colseq"
+        @input += " from SYSCAT.tabconst t"
+        @input += " inner join syscat.keycoluse c"
+        @input += " on t.constname=c.constname"
+        @input += " where t.tabschema = '#{$1.upcase}'"
+        @input += " and t.tabname = '#{$2.upcase}'"
+        @input += " order by t.constname, c.colseq"
+        return
       end
 
       shortcuts
