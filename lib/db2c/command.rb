@@ -47,7 +47,8 @@ module Db2c
       end
 
       if @input =~ /^\\dd ([^. ]+)\.([^.+ ]+)/
-        @input = "select substr(colname, 1, 30), substr(typeschema, 1, 30), substr(typename, 1, 30), length, scale, substr(default, 1, 30)"
+        @input = "select substr(colname, 1, 40) as colname, substr(typeschema, 1, 10) as typeschema,"
+        @input += "substr(typename, 1, 20) as typename, length, scale, nulls, substr(default, 1, 30) as default"
         @input += " from syscat.columns"
         @input += " where tabschema = '#{$1.upcase}'"
         @input += " and tabname = '#{$2.upcase}'"
