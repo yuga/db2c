@@ -80,6 +80,14 @@ module Db2c
         return
       end
 
+      if @input =~ /^\\ds ?(\w*)$/
+        @input = "select char(strip(tbspace), 15) as tbspace, char(strip(tabschema) || '.' || strip(tabname), 128) as table from syscat.tables"
+        @input += " where type = 'T'"
+        @input += " and tabschema = '#{$1.upcase}'" unless $1.empty?
+        @input += " #{DTORDER}"
+        return
+      end
+
       shortcuts
     end
 
