@@ -46,12 +46,13 @@ module Db2c
         return
       end
 
-      if @input =~ /^\\dd ([^. ]+)\.([^.+ ]+)/
-        @input = "select substr(colname, 1, 40) as colname, substr(typeschema, 1, 10) as typeschema,"
-        @input += "substr(typename, 1, 20) as typename, length, scale, nulls, substr(default, 1, 30) as default"
+      if @input =~ /^\\dd([d|t]?) ([^. ]+)\.([^.+ ]+)/
+        @input = "select substr(colname, 1, 40) as colname, substr(typeschema, 1, 10) as typeschema, substr(typename, 1, 20) as typename"
+        @input += ", length, scale, nulls, substr(default, 1, 20) as default, generated, substr(text, 1, 40) as text" if $1 != "t"
+        @input += ", generated, substr(text, 1, 100) as text" if $1 == "t"
         @input += " from syscat.columns"
-        @input += " where tabschema = '#{$1.upcase}'"
-        @input += " and tabname = '#{$2.upcase}'"
+        @input += " where tabschema = '#{$2.upcase}'"
+        @input += " and tabname = '#{$3.upcase}'"
         @input += " order by colno"
         return
       end
