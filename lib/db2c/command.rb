@@ -58,7 +58,7 @@ module Db2c
       end
 
       if @input =~ /^\\di ([^. ]+)\.([^.+ ]+)/
-        @input = "select substr(i.indschema, 1, 10) as indschema, substr(i.indname, 1, 30) as indname, i.uniquerule,"
+        @input = "select substr(i.indschema, 1, 20) as indschema, substr(i.indname, 1, 30) as indname, i.uniquerule,"
         @input += " substr(c.colname, 1, 40) as colname, c.colseq as colseq, c.colorder as colorder"
         @input += " from SYSCAT.indexes i"
         @input += " inner join SYSCAT.indexcoluse c"
@@ -83,9 +83,34 @@ module Db2c
 
       if @input =~ /^\\dp ?(\w*)$/
         @input = "select char(strip(tbspace), 15) as tbspace, char(strip(tabschema) || '.' || strip(tabname), 128) as table from syscat.tables"
-        @input += " where type = 'T'"
+        @input += " where type in ('T','V')"
         @input += " and tabschema = '#{$1.upcase}'" unless $1.empty?
         @input += " #{DTORDER}"
+        return
+      end
+
+      if @input =~ /^\\size ?(\w*)$/
+        @input = "select substr(tabschema,1,30) as tabschema, substr(tabname,1,30) as tabschema,"
+        @input += " sum(data_object_p_size)+sum(index_object_p_size)+ sum(long_object_p_size)+sum(lob_object_p_size)+ sum(xml_object_p_size) as total_size,"
+        @input += " sum(data_object_p_size) as data_object_p_size, sum(index_object_p_size) as index_object_p_size,"
+        @input += " sum(long_object_p_size) as long_object_p_size, sum(lob_object_p_size) as lob_object_p_size,"
+        @input += " sum(xml_object_p_size) as xml_object_p_size"
+        @input += " from SYSIBMADM.admintabinfo where tabschema = '#{$1.upcase}'"
+        @input += " group by tabschema,tabname"
+        return
+      end
+
+      if @input =~ /^\\status ?(\w*)$/
+        @input = "select varchar(tabschema,30) as tabschema,varchar(tabname,30) as tabname,status,access_mode from SYSCAT.tables"
+        @input += " where tabschema ='#{$1.upcase}'"
+        @input += " order by tabname"
+        return
+      end
+
+      if @input =~ /^\\pending ?(\w*)$/
+        @input = "select varchar(tabschema,30) as tabschema,varchar(tabname,30) as tabname,reorg_pending,num_reorg_rec_alters from SYSIBMADM.admintabinfo"
+        @input += " where tabschema ='#{$1.upcase}'"
+        @input += " order by tabname"
         return
       end
 
