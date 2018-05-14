@@ -89,13 +89,15 @@ module Db2c
         return
       end
 
-      if @input =~ /^\\size ?(\w*)$/
+      if @input =~ /^\\size ([^. ]+)\.?([^.+ ]*)/
         @input = "select substr(tabschema,1,30) as tabschema, substr(tabname,1,30) as tabschema,"
         @input += " sum(data_object_p_size)+sum(index_object_p_size)+ sum(long_object_p_size)+sum(lob_object_p_size)+ sum(xml_object_p_size) as total_size,"
         @input += " sum(data_object_p_size) as data_object_p_size, sum(index_object_p_size) as index_object_p_size,"
         @input += " sum(long_object_p_size) as long_object_p_size, sum(lob_object_p_size) as lob_object_p_size,"
         @input += " sum(xml_object_p_size) as xml_object_p_size"
-        @input += " from SYSIBMADM.admintabinfo where tabschema = '#{$1.upcase}'"
+        @input += " from SYSIBMADM.admintabinfo"
+        @input += " where tabschema = '#{$1.upcase}'"
+        @input += " and tabname = '#{$2.upcase}'" unless $2.empty?
         @input += " group by tabschema,tabname"
         return
       end
